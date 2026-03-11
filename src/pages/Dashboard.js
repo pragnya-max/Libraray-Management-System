@@ -44,7 +44,6 @@ const Dashboard = () => {
     const totalBooks = booksData.length;
     const borrowBooks = booksData.filter(b => b.status === 'Borrowed').length;
     const returnBooks = booksData.filter(b => b.status === 'Available' || b.status === 'Returned').length;
-    const missingBooks = booksData.filter(b => b.status === 'Missing').length;
     const overdueBooks = booksData.filter(b => b.status === 'Overdue').length; // Or calculated based on due date
     const totalMembers = membersData.length;
 
@@ -338,7 +337,7 @@ const Dashboard = () => {
                                         ▶
                                     </button>
                                 </div>
-                                <a href="#" style={{ color: '#3B82F6', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold' }}>View All</a>
+                                <a href="/dashboard" onClick={(e) => e.preventDefault()} style={{ color: '#3B82F6', fontSize: '14px', textDecoration: 'none', fontWeight: 'bold' }}>View All</a>
                             </div>
                         </div>
                         
