@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const TopBar = ({ setAuth }) => {
+const TopBar = ({ setAuth, onToggleSidebar }) => {
     const [showProfile, setShowProfile] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
     return (
@@ -16,8 +16,10 @@ const TopBar = ({ setAuth }) => {
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
             {/* Blue Hamburger Button */}
-            <button style={{
-                backgroundColor: '#4299e1',
+            <button 
+                onClick={onToggleSidebar}
+                style={{
+                backgroundColor: '#3B82F6',
                 border: 'none',
                 borderRadius: '4px',
                 width: '35px',

@@ -23,18 +23,18 @@ import './App.css';
 
 // Shared mock data lifted to App level so state persists across navigation
 const initialBooks = [
-    { id: 1, name: 'Kifo Kisimani', bookNo: 'KLB0123', isbn: '', author: 'Ken Walibora', publisher: 'East African Publisher', edition: '', placeOfPublication: 'Nairobi', subject: 'Kiswahili', numPages: '180', status: 'Borrowed', borrowedBy: 'Ken Mutiso Kivanga' },
-    { id: 2, name: 'The River Between', bookNo: 'KLB0125', isbn: '', author: 'Ngugi Wathiongo', publisher: 'East African Publisher', edition: '2nd', placeOfPublication: 'Nairobi', subject: 'English', numPages: '150', status: 'Available' },
-    { id: 3, name: 'KLB Kiswahili Kitukunzwe', bookNo: 'KLB0128', isbn: '', author: 'Ken Walibora', publisher: 'East African Publisher', edition: '1st', placeOfPublication: 'Nairobi', subject: 'Kiswahili', numPages: '220', status: 'Available' },
-    { id: 4, name: 'KLB Business Studies Form One', bookNo: 'KLB0129', isbn: '', author: 'David Ndii', publisher: 'Jomo Kenyata Foundation Publisher', edition: '', placeOfPublication: 'Nairobi', subject: 'Business Studies', numPages: '300', status: 'Available' }
+    { id: 1, name: '10 day mba', bookNo: 'BK001', isbn: '', author: '', publisher: '', edition: '', placeOfPublication: '', subject: 'Business', numPages: '', status: 'Borrowed', borrowedBy: 'suvam', borrowedById: 'EMP004', dateIssued: '2026-03-01', returnDate: '2026-03-15' },
+    { id: 2, name: 'the power of habbit', bookNo: 'BK002', isbn: '', author: '', publisher: '', edition: '', placeOfPublication: '', subject: 'Self Help', numPages: '', status: 'Available' },
+    { id: 3, name: 'the four hour work week', bookNo: 'BK003', isbn: '', author: '', publisher: '', edition: '', placeOfPublication: '', subject: 'Business', numPages: '', status: 'Available' },
+    { id: 4, name: 'sapiens', bookNo: 'BK004', isbn: '', author: '', publisher: '', edition: '', placeOfPublication: '', subject: 'History', numPages: '', status: 'Borrowed', borrowedBy: 'khusi', borrowedById: 'EMP002', dateIssued: '2026-03-01', returnDate: '2026-03-15' }
 ];
 
 const initialEmployees = [
-    { id: 1, name: 'Ken Mutiso Kivanga', idCardNo: 'EMP001', contact: '0745978695', email: 'ken@aveti.com', position: 'Manager', status: 'Active' },
-    { id: 2, name: 'Bilal Osman', idCardNo: 'EMP002', contact: '071237868', email: 'bilal@aveti.com', position: 'Staff', status: 'Active' },
-    { id: 3, name: 'Mark Namaswa', idCardNo: 'EMP003', contact: '070956843', email: 'mark@aveti.com', position: 'Staff', status: 'Active' },
-    { id: 4, name: 'Salome Shitanda', idCardNo: 'EMP004', contact: '070985764', email: 'salome@aveti.com', position: 'Teacher', status: 'Active' },
-    { id: 5, name: 'Sabina Chege', idCardNo: 'EMP005', contact: '070569785', email: 'sabina@aveti.com', position: 'Teacher', status: 'Active' }
+    { id: 1, name: 'pooja', idCardNo: 'EMP001', contact: '', email: '', position: '', status: 'Active' },
+    { id: 2, name: 'khusi', idCardNo: 'EMP002', contact: '', email: '', position: '', status: 'Active' },
+    { id: 3, name: 'neha', idCardNo: 'EMP003', contact: '', email: '', position: '', status: 'Active' },
+    { id: 4, name: 'suvam', idCardNo: 'EMP004', contact: '', email: '', position: '', status: 'Active' },
+    { id: 5, name: 'arpita', idCardNo: 'EMP005', contact: '', email: '', position: '', status: 'Active' }
 ];
 
 function App() {
@@ -60,6 +60,26 @@ function App() {
   useEffect(() => { localStorage.setItem('lms_books', JSON.stringify(books)); }, [books]);
   useEffect(() => { localStorage.setItem('lms_employees', JSON.stringify(employees)); }, [employees]);
 
+  // One-time migration: patch borrowed books that are missing borrowedById / dateIssued / returnDate
+  useEffect(() => {
+    let patched = false;
+    const updatedBooks = books.map(b => {
+      if (b.status === 'Borrowed' && b.borrowedBy && (!b.borrowedById || !b.dateIssued)) {
+        const emp = employees.find(e => e.name === b.borrowedBy);
+        patched = true;
+        return {
+          ...b,
+          borrowedById: b.borrowedById || (emp ? emp.idCardNo : '-'),
+          dateIssued: b.dateIssued || '2026-03-01',
+          returnDate: b.returnDate || '2026-03-15'
+        };
+      }
+      return b;
+    });
+    if (patched) setBooks(updatedBooks);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
@@ -78,16 +98,18 @@ function App() {
     }
   };
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const isAdmin = isAuthenticated && userRole === 'admin';
   const isEmployee = isAuthenticated && userRole === 'employee';
 
   return (
     <Router>
       <div className="App" style={{ display: 'flex', minHeight: '100vh' }}>
-        {isAdmin && <Sidebar />}
+        {isAdmin && <Sidebar collapsed={sidebarCollapsed} />}
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#f7fafc' }}>
-          {isAdmin && <TopBar setAuth={(v) => handleSetAuth(v, null)} />}
+          {isAdmin && <TopBar setAuth={(v) => handleSetAuth(v, null)} onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />}
 
           <main style={{ padding: isAdmin ? '20px' : '0' }}>
             <Routes>

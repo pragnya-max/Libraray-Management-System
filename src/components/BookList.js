@@ -75,23 +75,35 @@ const BookList = ({ books, setBooks, employees = [] }) => {
     const handleIssueSubmit = () => {
         let newStatus = issuingBook.status;
         let borrowedBy = issuingBook.borrowedBy || '';
+        let borrowedById = issuingBook.borrowedById || '';
+        let dateIssued = issuingBook.dateIssued || '';
+        let returnDate = issuingBook.returnDate || '';
 
         if (issueData.actionStatus === 'Borrow') {
             newStatus = 'Borrowed';
             // Look up name from employees list, fall back to entered ID
             const emp = employees.find(e => e.idCardNo === issueData.employeeId || e.name === issueData.employeeId);
             borrowedBy = emp ? emp.name : issueData.employeeId;
+            borrowedById = emp ? emp.idCardNo : issueData.employeeId;
+            dateIssued = issueData.dateIssued;
+            returnDate = issueData.returnDate;
         }
         if (issueData.actionStatus === 'Return') {
             newStatus = 'Available';
             borrowedBy = '';
+            borrowedById = '';
+            dateIssued = '';
+            returnDate = '';
         }
         if (issueData.actionStatus === 'Lost') {
             newStatus = 'Lost';
             borrowedBy = '';
+            borrowedById = '';
+            dateIssued = '';
+            returnDate = '';
         }
 
-        setBooks(books.map(b => b.id === issuingBook.id ? { ...b, status: newStatus, borrowedBy } : b));
+        setBooks(books.map(b => b.id === issuingBook.id ? { ...b, status: newStatus, borrowedBy, borrowedById, dateIssued, returnDate } : b));
         setShowIssueModal(false);
     };
 
