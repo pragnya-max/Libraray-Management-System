@@ -1,0 +1,86 @@
+.orange-navbar {
+    background-color: #f07b05;
+    /* The specific orange from the screenshot */
+    width: 100%;
+    border-bottom: 2px solid #d36a04;
+}
+
+.nav-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    margin-left: 20px;
+}
+
+.nav-item {
+    position: relative;
+    /* For dropdown positioning */
+}
+
+/* Links and Dropdown buttons */
+.nav-item a,
+.dropbtn {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.nav-item a:hover,
+.dropdown:hover .dropbtn {
+    background-color: #d36a04;
+    /* Darker orange on hover */
+}
+
+/* The active/currently selected main menu item (like BOOKTRANSACTION in the image) */
+.active-menu,
+.nav-item .active-menu {
+    background-color: white;
+    color: #f07b05;
+}
+
+.dropdown:hover .active-menu {
+    background-color: #f8f8f8;
+    color: #d36a04;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    border-top: 2px solid #ccc;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: #f07b05;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    text-transform: none;
+    /* Keep dropdown items normal case like the screenshot */
+    font-weight: normal;
+}
+
+/* Add an underline on hover for dropdown items like in the screenshot */
+.dropdown-content a:hover {
+    background-color: #f5f5f5;
+    text-decoration: underline;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
