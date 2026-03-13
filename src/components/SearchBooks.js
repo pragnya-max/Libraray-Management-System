@@ -32,7 +32,7 @@ const SearchBooks = () => {
                 {books.map(book => (
                     <li key={book.id} style={{ padding: '10px', border: '1px solid #ddd', marginBottom: '10px', borderRadius: '4px' }}>
                         <strong>{book.title}</strong> by {book.author} <br />
-                        <span style={{ fontSize: '13px', color: '#666' }}>ISBN: {book.isbn} | Location: Rack {book.rack_no}, Shelf {book.shelf_no}</span>
+                        <span style={{ fontSize: '13px', color: '#666' }}>Location: Rack {book.rack_no}, Shelf {book.shelf_no}</span>
                     </li>
                 ))}
                 {books.length === 0 && searchQuery && <li>No results found.</li>}

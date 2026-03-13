@@ -1,189 +1,245 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Login = ({ setAuth }) => {
-    const [mode, setMode] = useState(null); // null | 'admin' | 'employee'
+const Login = ({ setAuth, employees }) => {
+    const [view, setView] = useState('landing'); // 'landing' | 'admin' | 'employee'
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleAdminLogin = (e) => {
+    const handleLogin = (e) => {
         e.preventDefault();
-        if (username === 'admin' && password === 'admin123') {
-            localStorage.setItem('token', 'admin_token');
-            localStorage.setItem('userRole', 'admin');
-            setAuth(true, 'admin');
-            navigate('/dashboard');
-        } else {
-            setError('Invalid admin credentials. Use admin / admin123');
+        
+        if (view === 'admin') {
+            if (username === 'admin' && password === 'admin123') {
+                localStorage.setItem('token', 'admin_token');
+                localStorage.setItem('userRole', 'admin');
+                setAuth(true, 'admin');
+                navigate('/dashboard');
+                return;
+            }
+        } else if (view === 'employee') {
+            // Verify against actual employee data
+            const employee = employees.find(e => e.idCardNo === username);
+            if (employee && employee.password === password) {
+                localStorage.setItem('token', 'employee_token');
+                localStorage.setItem('userRole', 'employee');
+                localStorage.setItem('employeeId', username);
+                setAuth(true, 'employee');
+                navigate('/employee-portal');
+                return;
+            } else if (!employee) {
+                setError('ID Card No not found. Please contact admin.');
+                return;
+            } else {
+                setError('Incorrect password. Please try again.');
+                return;
+            }
         }
+
+        setError('Sorry, we can\'t find an account with this ID or password. Please try again.');
     };
 
-    const handleEmployeeLogin = (e) => {
-        e.preventDefault();
-        // Any employee ID card + pin 1234 works
-        if (username && password === '1234') {
-            localStorage.setItem('token', 'employee_token');
-            localStorage.setItem('userRole', 'employee');
-            localStorage.setItem('employeeId', username);
-            setAuth(true, 'employee');
-            navigate('/employee-portal');
-        } else {
-            setError('Use your Employee ID Card Number and PIN: 1234');
-        }
-    };
-
-    const cardStyle = (active) => ({
-        flex: 1,
-        padding: '40px 30px',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        border: active ? '3px solid #4299e1' : '3px solid transparent',
-        backgroundColor: active ? '#fffbf2' : 'white',
-        boxShadow: active ? '0 8px 24px rgba(66,153,225,0.25)' : '0 4px 12px rgba(0,0,0,0.08)',
-        transition: 'all 0.3s ease',
+    const containerStyle = {
+        position: 'relative',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-    });
+        backgroundColor: '#000',
+        fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.95) 100%), url('/background.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+    };
 
     return (
-        <div style={{
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            minHeight: '100vh', backgroundColor: '#f0f4f8',
-            fontFamily: "'Segoe UI', sans-serif"
-        }}>
-            <div style={{ width: '100%', maxWidth: '800px', padding: '20px' }}>
-
-                {/* Logo + Title */}
-                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                    <svg width="70" height="70" viewBox="0 0 100 100" style={{ marginBottom: '10px' }}>
-                        <polygon points="50,0 100,100 0,100" fill="#8bc34a" />
-                        <polygon points="25,50 75,50 50,100" fill="#c8e6c9" />
-                        <polygon points="50,0 75,50 25,50" fill="#8bc34a" />
+        <div style={containerStyle}>
+            {/* Header / Logo Area */}
+            <div style={{ padding: '24px 5%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <polygon points="50,0 100,100 0,100" fill="#48bb78" />
+                        <polygon points="25,50 75,50 50,100" fill="#c6f6d5" />
+                        <polygon points="50,0 75,50 25,50" fill="#48bb78" />
                     </svg>
-                    <h1 style={{ margin: 0, fontSize: '26px', fontWeight: '700', color: '#2d3748' }}>Library Management System</h1>
-                    <p style={{ color: '#718096', marginTop: '6px' }}>Select your login portal to continue</p>
+                    <span style={{ color: '#48bb78', fontSize: '28px', fontWeight: '800', letterSpacing: '1px' }}>LIBRARY</span>
                 </div>
+                
+                {view !== 'landing' && (
+                    <button 
+                        onClick={() => { setView('landing'); setError(''); setUsername(''); setPassword(''); }}
+                        style={{
+                            padding: '8px 18px',
+                            backgroundColor: '#333',
+                            color: 'white',
+                            border: '1px solid #737373',
+                            borderRadius: '4px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                        }}
+                    >
+                        Back
+                    </button>
+                )}
+            </div>
 
-                {/* Portal Selection Cards */}
-                {!mode && (
-                    <div style={{ display: 'flex', gap: '24px' }}>
-                        <div style={cardStyle(false)} onClick={() => setMode('admin')}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
-                            <h2 style={{ margin: '0 0 8px', color: '#2d3748', fontSize: '20px' }}>Admin Portal</h2>
-                            <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-                                Full access: manage books, employees, borrow records and reports
-                            </p>
-                            <button style={{
-                                marginTop: '24px', padding: '12px 30px', backgroundColor: '#4299e1',
-                                color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700',
-                                fontSize: '14px', cursor: 'pointer', width: '100%'
-                            }}>
-                                Admin Login →
+            {/* Content Area */}
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '0 5% 100px',
+                flexDirection: 'column',
+                textAlign: 'center',
+                zIndex: 1
+            }}>
+                {view === 'landing' ? (
+                    <div style={{ maxWidth: '800px' }}>
+                        <h1 style={{ color: 'white', fontSize: '56px', fontWeight: '900', margin: '0 0 16px 0', lineHeight: '1.2' }}>
+                            Unlimited books, journals, and resources
+                        </h1>
+                        <p style={{ color: 'white', fontSize: '24px', margin: '0 0 48px 0' }}>
+                            Read anywhere. Return anytime.
+                        </p>
+                        
+                        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+                            <button 
+                                onClick={() => setView('admin')}
+                                style={{
+                                    padding: '20px 40px',
+                                    fontSize: '20px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#38a169',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                                    transition: 'transform 0.2s'
+                                }}
+                                onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                            >
+                                Admin Portal
                             </button>
-                        </div>
-
-                        <div style={cardStyle(false)} onClick={() => setMode('employee')}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
-                            <h2 style={{ margin: '0 0 8px', color: '#2d3748', fontSize: '20px' }}>Employee Portal</h2>
-                            <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-                                View book availability, search books, and track your borrowed books
-                            </p>
-                            <button style={{
-                                marginTop: '24px', padding: '12px 30px', backgroundColor: '#48bb78',
-                                color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700',
-                                fontSize: '14px', cursor: 'pointer', width: '100%'
-                            }}>
-                                Employee Login →
+                            <button 
+                                onClick={() => setView('employee')}
+                                style={{
+                                    padding: '20px 40px',
+                                    fontSize: '20px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#2b6cb0',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                                    transition: 'transform 0.2s'
+                                }}
+                                onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                            >
+                                Employee Portal
                             </button>
                         </div>
                     </div>
-                )}
-
-                {/* Admin Login Form */}
-                {mode === 'admin' && (
+                ) : (
                     <div style={{
-                        backgroundColor: 'white', borderRadius: '12px', padding: '40px',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.1)', maxWidth: '420px', margin: '0 auto'
+                        padding: '60px 68px 40px',
+                        borderRadius: '4px',
+                        width: '100%',
+                        maxWidth: '450px',
+                        boxSizing: 'border-box',
+                        zIndex: 2
                     }}>
-                        <button onClick={() => { setMode(null); setError(''); }} style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', marginBottom: '20px', fontSize: '14px' }}>
-                            ← Back
-                        </button>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-                            <span style={{ fontSize: '32px' }}>🔐</span>
-                            <div>
-                                <h2 style={{ margin: 0, color: '#2d3748' }}>Admin Login</h2>
-                                <p style={{ margin: 0, color: '#718096', fontSize: '13px' }}>Full system access</p>
-                            </div>
-                        </div>
+                        <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 10px 0', textAlign: 'left' }}>
+                            {view === 'admin' ? 'Admin Login' : 'Employee Login'}
+                        </h1>
+                        <p style={{ color: '#a3a3a3', fontSize: '16px', margin: '0 0 28px 0', textAlign: 'left' }}>
+                            Please enter your credentials to access the {view} portal.
+                        </p>
 
-                        <form onSubmit={handleAdminLogin}>
-                            {error && <div style={{ backgroundColor: '#fff5f5', border: '1px solid #fc8181', color: '#c53030', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>{error}</div>}
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '6px', fontWeight: '600' }}>USERNAME</label>
-                                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="admin"
-                                    style={{ width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                        {error && (
+                            <div style={{ backgroundColor: '#e87c03', padding: '10px 20px', borderRadius: '4px', color: 'white', fontSize: '14px', marginBottom: '16px', textAlign: 'left' }}>
+                                {error}
                             </div>
-                            <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '6px', fontWeight: '600' }}>PASSWORD</label>
-                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••"
-                                    style={{ width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                        )}
+
+                        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ position: 'relative' }}>
+                                <input 
+                                    type="text"
+                                    value={username}
+                                    onChange={e => setUsername(e.target.value)}
+                                    placeholder={view === 'admin' ? "Username" : "Employee ID"}
+                                    style={{
+                                        width: '100%',
+                                        padding: '16px 20px',
+                                        backgroundColor: '#333333',
+                                        border: '1px solid #737373',
+                                        borderRadius: '4px',
+                                        color: 'white',
+                                        fontSize: '16px',
+                                        boxSizing: 'border-box',
+                                        outline: 'none'
+                                    }}
+                                />
                             </div>
+
+                            <div style={{ position: 'relative' }}>
+                                <input 
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    placeholder={view === 'admin' ? "Password" : "PIN (Try 1234)"}
+                                    style={{
+                                        width: '100%',
+                                        padding: '16px 20px',
+                                        backgroundColor: '#333333',
+                                        border: '1px solid #737373',
+                                        borderRadius: '4px',
+                                        color: 'white',
+                                        fontSize: '16px',
+                                        boxSizing: 'border-box',
+                                        outline: 'none'
+                                    }}
+                                />
+                            </div>
+
                             <button type="submit" style={{
-                                width: '100%', padding: '14px', backgroundColor: '#4299e1',
-                                color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700',
-                                fontSize: '15px', cursor: 'pointer'
-                            }}>Login as Admin</button>
-                            <p style={{ textAlign: 'center', color: '#a0aec0', fontSize: '12px', marginTop: '16px' }}>Hint: admin / admin123</p>
+                                marginTop: '24px',
+                                padding: '16px',
+                                backgroundColor: view === 'admin' ? '#38a169' : '#2b6cb0',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                boxSizing: 'border-box',
+                                width: '100%'
+                            }}>
+                                Sign In
+                            </button>
                         </form>
                     </div>
                 )}
-
-                {/* Employee Login Form */}
-                {mode === 'employee' && (
-                    <div style={{
-                        backgroundColor: 'white', borderRadius: '12px', padding: '40px',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.1)', maxWidth: '420px', margin: '0 auto'
-                    }}>
-                        <button onClick={() => { setMode(null); setError(''); }} style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', marginBottom: '20px', fontSize: '14px' }}>
-                            ← Back
-                        </button>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-                            <span style={{ fontSize: '32px' }}>👤</span>
-                            <div>
-                                <h2 style={{ margin: 0, color: '#2d3748' }}>Employee Login</h2>
-                                <p style={{ margin: 0, color: '#718096', fontSize: '13px' }}>Book catalogue access</p>
-                            </div>
-                        </div>
-
-                        <form onSubmit={handleEmployeeLogin}>
-                            {error && <div style={{ backgroundColor: '#fff5f5', border: '1px solid #fc8181', color: '#c53030', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>{error}</div>}
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '6px', fontWeight: '600' }}>EMPLOYEE ID CARD NUMBER</label>
-                                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="e.g. EMP001"
-                                    style={{ width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-                            </div>
-                            <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '6px', fontWeight: '600' }}>PIN</label>
-                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••"
-                                    style={{ width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-                            </div>
-                            <button type="submit" style={{
-                                width: '100%', padding: '14px', backgroundColor: '#48bb78',
-                                color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700',
-                                fontSize: '15px', cursor: 'pointer'
-                            }}>Login as Employee</button>
-                            <p style={{ textAlign: 'center', color: '#a0aec0', fontSize: '12px', marginTop: '16px' }}>Use your ID Card No. (e.g. EMP001) and PIN: 1234</p>
-                        </form>
-                    </div>
-                )}
-
+            </div>
+            
+            {/* Footer bar */}
+            <div style={{ padding: '30px 5%', zIndex: 10 }}>
+                <p style={{ color: '#737373', fontSize: '14px', margin: 0 }}>Questions? Call 000-800-040-XXXX</p>
+                <p style={{ color: '#555', fontSize: '12px', marginTop: '10px' }}>
+                    {view === 'landing' ? 'Choose your portal to continue.' : `Testing: Admin (admin/admin123), Employee (Any ID / 1234)`}
+                </p>
             </div>
         </div>
     );
 };
-
+            
 export default Login;

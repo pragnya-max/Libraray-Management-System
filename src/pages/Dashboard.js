@@ -83,56 +83,97 @@ const Dashboard = () => {
         setCurrentPage(prev => Math.min(prev + 1, totalPages));
     };
 
-    const holidays = [
-        { name: "Makar Sankranti", date: 14, month: 0, type: "G" },
-        { name: "Subash Chandra Bose Jayanti / Vir Surendra Sai Jayanti / Basanta Panchami", date: 23, month: 0, type: "G" },
-        { name: "Republic Day", date: 26, month: 0, type: "G" },
-        { name: "Dola Purnima", date: 3, month: 2, type: "G" },
-        { name: "Holi", date: 4, month: 2, type: "G" },
-        { name: "Id-Ul-Fitre", date: 21, month: 2, type: "G" },
-        { name: "Shree Ram Nabami", date: 27, month: 2, type: "G" },
-        { name: "Utkal Divas", date: 1, month: 3, type: "G" },
-        { name: "Good Friday", date: 3, month: 3, type: "G" },
-        { name: "Mahashubha Sankranti / Dr. B.R. Ambedkar Jayanti", date: 14, month: 3, type: "G" },
-        { name: "Buddha Purnima / Birthday of Pandit Raghunath Murmu", date: 1, month: 4, type: "G" },
-        { name: "Sabitri Amabasya", date: 14, month: 4, type: "G" },
-        { name: "Id-ul-Zuha", date: 27, month: 4, type: "G" },
-        { name: "Raja Sankranti", date: 15, month: 5, type: "G" },
-        { name: "Muharram", date: 26, month: 5, type: "G" },
-        { name: "Rath Yatra", date: 16, month: 6, type: "G" },
-        { name: "Independence Day", date: 15, month: 7, type: "G" },
-        { name: "Birthday of Prophet Mohammad", date: 26, month: 7, type: "G" },
-        { name: "Jhulana Purnima", date: 27, month: 7, type: "G" },
-        { name: "Janmastami", date: 4, month: 8, type: "G" },
-        { name: "Ganesh Puja", date: 14, month: 8, type: "G" },
-        { name: "Nuakhai", date: 15, month: 8, type: "G" },
-        { name: "Day following Nuakhai", date: 16, month: 8, type: "G" },
-        { name: "Gandhi Jayanti", date: 2, month: 9, type: "G" },
-        { name: "Maha Saptami", date: 17, month: 9, type: "G" },
-        { name: "Maha Nabami", date: 19, month: 9, type: "G" },
-        { name: "Vijaya Dasami", date: 20, month: 9, type: "G" },
-        { name: "Rasa Purnima", date: 24, month: 10, type: "G" },
-        { name: "X-Mas Day", date: 25, month: 11, type: "G" }
-    ];
+    const BookStatusChart = ({ available, borrowed, overdue }) => {
+        const total = available + borrowed + overdue || 1;
+        const issuedPercent = Math.round((borrowed / total) * 100);
+        
+        // Simple SVG Donut Chart logic
+        const radius = 70;
+        const strokeWidth = 35;
+        const normalizedRadius = radius - strokeWidth / 2;
+        const circumference = normalizedRadius * 2 * Math.PI;
+        
+        const borrowedOffset = circumference - (borrowed / total) * circumference;
+        const availableOffset = circumference - (available / total) * circumference;
+        const overdueOffset = circumference - (overdue / total) * circumference;
 
-    const [monthOffset, setMonthOffset] = useState(0);
+        return (
+            <div style={{ backgroundColor: '#ffffff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                    <h2 style={{ fontSize: '18px', margin: 0, color: '#111827', fontWeight: 'bold' }}>Books Circulation</h2>
+                    <div style={{ color: '#9CA3AF', cursor: 'pointer' }}>⋮</div>
+                </div>
 
-    const today = new Date();
-    const viewedDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
-    
-    const currentMonthIndex = viewedDate.getMonth(); // 0 is January, 11 is December
-    const currentMonth = viewedDate.toLocaleString('default', { month: 'long' });
-    const currentYear = viewedDate.getFullYear();
-    const firstDayOfMonth = new Date(currentYear, currentMonthIndex, 1).getDay();
-    const daysInMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
-    const blanksAtEnd = (7 - ((firstDayOfMonth + daysInMonth) % 7)) % 7;
+                {/* Legend */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '40px', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#00BFFF' }}></div>
+                        <span style={{ color: '#6B7280' }}>Issued Books</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FFD700' }}></div>
+                        <span style={{ color: '#6B7280' }}>Reserved Books</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FF4500' }}></div>
+                        <span style={{ color: '#6B7280' }}>Overdue Books</span>
+                    </div>
+                </div>
 
-    const holidaysThisMonth = holidays.filter(h => h.month === currentMonthIndex);
-
-    const getHolidayTypeColor = (type) => {
-        if (type === 'G') return '#e51a24'; // Red for General
-        if (type === 'R') return '#0f8a3d'; // Green for Restricted
-        return '#e51a24'; // Default to red
+                {/* Donut Chart SVG */}
+                <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                    <svg height={radius * 2} width={radius * 2} style={{ transform: 'rotate(-90deg)' }}>
+                        {/* Issued (Blue) */}
+                        <circle
+                            stroke="#00BFFF"
+                            fill="transparent"
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={circumference + ' ' + circumference}
+                            style={{ strokeDashoffset: circumference - (borrowed / total) * circumference }}
+                            r={normalizedRadius}
+                            cx={radius}
+                            cy={radius}
+                        />
+                        {/* Reserved/Available (Yellow) */}
+                        <circle
+                            stroke="#FFD700"
+                            fill="transparent"
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={circumference + ' ' + circumference}
+                            style={{ 
+                                strokeDashoffset: circumference - (available / total) * circumference,
+                                transform: `rotate(${(borrowed/total) * 360}deg)`,
+                                transformOrigin: 'center'
+                            }}
+                            r={normalizedRadius}
+                            cx={radius}
+                            cy={radius}
+                        />
+                        {/* Overdue (Red) */}
+                        <circle
+                            stroke="#FF4500"
+                            fill="transparent"
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={circumference + ' ' + circumference}
+                            style={{ 
+                                strokeDashoffset: circumference - (overdue / total) * circumference,
+                                transform: `rotate(${((borrowed + available)/total) * 360}deg)`,
+                                transformOrigin: 'center'
+                            }}
+                            r={normalizedRadius}
+                            cx={radius}
+                            cy={radius}
+                        />
+                    </svg>
+                    
+                    {/* Center Text */}
+                    <div style={{ position: 'absolute', textAlign: 'center' }}>
+                        <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1F2937' }}>{issuedPercent}%</div>
+                        <div style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Circulation</div>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -157,7 +198,7 @@ const Dashboard = () => {
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </KPI>
                 <KPI 
-                    title="Borrow books" 
+                    title="Borrowed books" 
                     value={borrowBooks} 
                     iconFill="#3B82F6"
                     iconBg="#EFF6FF"
@@ -165,7 +206,7 @@ const Dashboard = () => {
                     <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line>
                 </KPI>
                 <KPI 
-                    title="Return books" 
+                    title="Available Books" 
                     value={returnBooks} 
                     iconFill="#F59E0B"
                     iconBg="#FFFBEB"
@@ -183,129 +224,12 @@ const Dashboard = () => {
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>
-                <div style={{ flex: '3', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {/* Calendar Title (Plain Text instead of dark header match) */}
-                    <div style={{ textAlign: 'center', fontSize: '24px', color: '#111827', marginBottom: '-10px' }}>
-                        Calender
-                    </div>
-
-                    {/* Calendar View */}
-                    <div style={{ backgroundColor: '#ffffff', padding: '0', borderRadius: '0', boxShadow: 'none' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#c6f6d5', padding: '10px', color: '#111827', gap: '15px' }}>
-                            <button 
-                                onClick={() => setMonthOffset(monthOffset - 1)}
-                                style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: '#111827', fontSize: '14px', display: 'flex', alignItems: 'center', padding: '5px' }}>
-                                ◀
-                            </button>
-                            
-                            <h2 style={{ fontSize: '14px', margin: 0, fontWeight: 'bold', minWidth: '120px', textAlign: 'center', color: '#111827' }}>
-                               {currentMonth} {currentYear}
-                            </h2>
-
-                            <button 
-                                onClick={() => setMonthOffset(monthOffset + 1)}
-                                style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: '#111827', fontSize: '14px', display: 'flex', alignItems: 'center', padding: '5px' }}>
-                                ▶
-                            </button>
-                        </div>
-
-                        {/* Dynamic Calendar Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: '#e2e8f0', border: '1px solid #e2e8f0' }}>
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                            <div key={d} style={{ padding: '10px', backgroundColor: '#ffffff', textAlign: 'center', fontWeight: 'bold', fontSize: '12px', color: '#6B7280' }}>{d}</div>
-                        ))}
-                        {/* Blank days for start of month */}
-                        {[...Array(firstDayOfMonth)].map((_, i) => (
-                            <div key={`start-${i}`} style={{ backgroundColor: '#ffffff' }}></div>
-                        ))}
-                        {/* Calendar Days */}
-                        {[...Array(daysInMonth)].map((_, i) => {
-                            // Check if today is a holiday
-                            const dayNum = i + 1;
-                            const holidayObj = holidaysThisMonth.find(h => h.date === dayNum);
-                            const isHoliday = !!holidayObj;
-                            const isTodayDate = dayNum === today.getDate() && currentMonthIndex === today.getMonth() && currentYear === today.getFullYear();
-                            
-                            return (
-                                <div key={`day-${i}`} style={{ 
-                                    padding: '10px 5px', 
-                                    backgroundColor: isHoliday ? '#fbe9e9' : '#ffffff', 
-                                    textAlign: 'center', fontSize: '12px', color: '#9CA3AF', position: 'relative', minHeight: '30px',
-                                    display: 'flex', justifyContent: 'center', alignItems: 'center'
-                                }}>
-                                    <span style={{ 
-                                        color: isTodayDate ? '#3B82F6' : (isHoliday ? '#EF4444' : '#9CA3AF'), 
-                                        fontWeight: (isTodayDate || isHoliday) ? 'bold' : 'normal',
-                                        border: isTodayDate ? '2px solid #3B82F6' : 'none',
-                                        borderRadius: '50%',
-                                        width: '20px',
-                                        height: '20px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}>{dayNum}</span>
-                                </div>
-                            );
-                        })}
-                        {/* Blanks for end of calendar */}
-                        {[...Array(blanksAtEnd)].map((_, i) => (
-                            <div key={`end-${i}`} style={{ backgroundColor: '#ffffff' }}></div>
-                        ))}
-                        </div>
-                    </div>
-
-                    {/* Upcoming Holidays List */}
-                    <div style={{ backgroundColor: '#ffffff', borderRadius: '0', boxShadow: 'none', overflow: 'hidden' }}>
-                        <div style={{ backgroundColor: '#c6f6d5', padding: '15px', borderBottom: 'none' }}>
-                            <h2 style={{ fontSize: '16px', margin: 0, color: '#111827', fontWeight: 'bold' }}>
-                                Holidays <span style={{ fontWeight: 'normal', color: '#111827' }}>of the Month</span>
-                            </h2>
-                        </div>
-                    
-                        <ul style={{ listStyleType: 'none', padding: '15px 0', margin: '0' }}>
-                            {holidaysThisMonth.length > 0 ? holidaysThisMonth.map((holiday, index) => {
-                                return (
-                                    <li key={index} style={{ 
-                                        padding: '10px 15px', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: '15px', 
-                                        marginBottom: '2px',
-                                        backgroundColor: 'transparent',
-                                        borderRadius: '0'
-                                    }}>
-                                        <div style={{ 
-                                            backgroundColor: getHolidayTypeColor(holiday.type), 
-                                            color: 'white', 
-                                            width: '28px', 
-                                            height: '28px', 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            justifyContent: 'center', 
-                                            fontWeight: 'bold', 
-                                            fontSize: '12px',
-                                            borderRadius: '50%',
-                                            flexShrink: 0
-                                        }}>
-                                            {holiday.date}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontSize: '13px', color: '#111827', fontWeight: '600' }}>
-                                                {holiday.name}
-                                            </div>
-                                            <div style={{ fontSize: '11px', color: '#3B82F6', marginTop: '2px' }}>
-                                                {holiday.type === 'G' ? 'Public Holiday' : 'Restricted Holiday'}
-                                            </div>
-                                        </div>
-                                    </li>
-                                );
-                            }) : (
-                                <li style={{ padding: '20px', textAlign: 'center', color: '#a0aec0' }}>
-                                    No holidays this month.
-                                </li>
-                            )}
-                        </ul>
-                    </div>
+                <div style={{ flex: '3' }}>
+                    <BookStatusChart 
+                        available={returnBooks}
+                        borrowed={borrowBooks}
+                        overdue={overdueBooks}
+                    />
                 </div>
 
                 <div style={{ flex: '7' }}>

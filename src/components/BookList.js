@@ -4,6 +4,9 @@ const BookList = ({ books, setBooks, employees = [] }) => {
     const [showNewModal, setShowNewModal] = useState(false);
     const [showIssueModal, setShowIssueModal] = useState(false);
     const [isViewMode, setIsViewMode] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const booksPerPage = 10;
 
     // States for Editing/Viewing/Issuing
     const [editingBook, setEditingBook] = useState(null);
@@ -11,7 +14,7 @@ const BookList = ({ books, setBooks, employees = [] }) => {
 
     // Form state for new/edit book
     const [newBook, setNewBook] = useState({
-        name: '', bookNo: '', isbn: '', author: '', publisher: '', status: 'Available'
+        name: '', isbn: '', author: '', status: 'Available', image: ''
     });
 
     // Form state for issue book
@@ -38,7 +41,7 @@ const BookList = ({ books, setBooks, employees = [] }) => {
 
     const handleOpenNew = () => {
         setEditingBook(null);
-        setNewBook({ name: '', bookNo: '', isbn: '', author: '', publisher: '', status: 'Available' });
+        setNewBook({ name: '', isbn: '', author: '', status: 'Available' });
         setIsViewMode(false);
         setShowNewModal(true);
     };
@@ -57,7 +60,7 @@ const BookList = ({ books, setBooks, employees = [] }) => {
     };
 
     const handleAddOrEditBook = () => {
-        if (!newBook.name || !newBook.bookNo) return; 
+        if (!newBook.name) return; 
         
         if (editingBook && !isViewMode) {
             setBooks(books.map(b => b.id === editingBook.id ? { ...b, ...newBook } : b));
@@ -128,7 +131,9 @@ const BookList = ({ books, setBooks, employees = [] }) => {
             {/* Search Input */}
             <input
                 type="text"
-                placeholder="Search book name...."
+                placeholder="Search book name or author...."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 style={{
                     width: '100%',
                     padding: '12px',
@@ -144,43 +149,84 @@ const BookList = ({ books, setBooks, employees = [] }) => {
                     <thead>
                         <tr>
                             <th style={{ textAlign: 'left', backgroundColor: 'white', color: '#4a5568' }}>BOOK NAME</th>
-                            <th style={{ textAlign: 'left', backgroundColor: 'white', color: '#4a5568' }}>BOOK NO</th>
                             <th style={{ textAlign: 'left', backgroundColor: 'white', color: '#4a5568' }}>AUTHOR</th>
-                            <th style={{ textAlign: 'left', backgroundColor: 'white', color: '#4a5568' }}>PUBLISHER</th>
                             <th style={{ textAlign: 'center', backgroundColor: 'white', color: '#4a5568' }}>BORROWED BY</th>
                             <th style={{ textAlign: 'center', backgroundColor: 'white', color: '#4a5568' }}>STATUS</th>
                             <th style={{ textAlign: 'center', backgroundColor: 'white', color: '#4a5568' }}>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {books.map((b, idx) => (
-                            <tr key={b.id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: idx % 2 === 0 ? '#f7fafc' : '#ffffff' }}>
-                                <td style={{ textAlign: 'left' }}>{b.name}</td>
-                                <td style={{ textAlign: 'left', color: '#718096' }}>{b.bookNo}</td>
-                                <td style={{ textAlign: 'left', color: '#718096' }}>{b.author}</td>
-                                <td style={{ textAlign: 'left', color: '#718096' }}>{b.publisher}</td>
-                                <td style={{ textAlign: 'center', fontWeight: '600', color: b.borrowedBy ? '#e53e3e' : '#48bb78' }}>
-                                    {b.borrowedBy ? `👤 ${b.borrowedBy}` : '✅ Available'}
-                                </td>
-                                <td style={{ textAlign: 'center', color: b.status === 'Available' ? '#48bb78' : '#f56565' }}>{b.status}</td>
-                                <td style={{ textAlign: 'center', display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                    <button onClick={() => handleOpenEdit(b, false)} title="Edit Book" style={{ backgroundColor: '#4299e1', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>✎</button>
-                                    <button onClick={() => handleOpenEdit(b, true)} title="View Book" style={{ backgroundColor: '#48bb78', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>👁</button>
-                                    <button onClick={() => handleOpenIssue(b)} title="Issue/Return Book" style={{ backgroundColor: '#9f7aea', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>📖</button>
-                                    <button onClick={() => handleDelete(b.id)} title="Delete Book" style={{ backgroundColor: '#f56565', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>✖</button>
-                                </td>
-                            </tr>
-                        ))}
+                        {(() => {
+                            const filtered = books.filter(b => 
+                                b.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                b.author.toLowerCase().includes(searchTerm.toLowerCase())
+                            );
+                            const indexOfLastBook = currentPage * booksPerPage;
+                            const indexOfFirstBook = indexOfLastBook - booksPerPage;
+                            const currentBooks = filtered.slice(indexOfFirstBook, indexOfLastBook);
+
+                            if (currentBooks.length === 0) {
+                                return <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#718096' }}>No books found.</td></tr>;
+                            }
+
+                            return currentBooks.map((b, idx) => (
+                                <tr key={b.id} style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: idx % 2 === 0 ? '#f7fafc' : '#ffffff' }}>
+                                    <td style={{ textAlign: 'left' }}>{b.name}</td>
+                                    <td style={{ textAlign: 'left', color: '#718096' }}>{b.author}</td>
+                                    <td style={{ textAlign: 'center', fontWeight: '600', color: b.borrowedBy ? '#e53e3e' : '#48bb78' }}>
+                                        {b.borrowedBy ? `👤 ${b.borrowedBy}` : '✅ Available'}
+                                    </td>
+                                    <td style={{ textAlign: 'center', color: b.status === 'Available' ? '#48bb78' : '#f56565' }}>{b.status}</td>
+                                    <td style={{ textAlign: 'center', display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                        <button onClick={() => handleOpenEdit(b, false)} title="Edit Book" style={{ backgroundColor: '#4299e1', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>✎</button>
+                                        <button onClick={() => handleOpenEdit(b, true)} title="View Book" style={{ backgroundColor: '#48bb78', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>👁</button>
+                                        <button onClick={() => handleOpenIssue(b)} title="Issue/Return Book" style={{ backgroundColor: '#9f7aea', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>📖</button>
+                                        <button onClick={() => handleDelete(b.id)} title="Delete Book" style={{ backgroundColor: '#f56565', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', width: '28px' }}>✖</button>
+                                    </td>
+                                </tr>
+                            ));
+                        })()}
                     </tbody>
                 </table>
             </div>
 
-            {/* Pagination Placeholder */}
-            <div style={{ display: 'flex', gap: '5px', marginTop: '20px' }}>
-                <button style={{ padding: '5px 10px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer' }}>«</button>
-                <button style={{ padding: '5px 10px', border: '1px solid #e2e8f0', cursor: 'pointer', color: '#718096', backgroundColor: '#f7fafc' }}>1</button>
-                <button style={{ padding: '5px 10px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer' }}>»</button>
-            </div>
+            {/* Pagination */}
+            {(() => {
+                const filtered = books.filter(b => 
+                    b.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    b.author.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                const totalPages = Math.ceil(filtered.length / booksPerPage);
+                if (totalPages <= 1) return null;
+
+                return (
+                    <div style={{ display: 'flex', gap: '5px', marginTop: '20px' }}>
+                        <button 
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            style={{ padding: '5px 10px', border: '1px solid #e2e8f0', backgroundColor: currentPage === 1 ? '#f7fafc' : 'white', cursor: currentPage === 1 ? 'default' : 'pointer' }}
+                        >«</button>
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button 
+                                key={i + 1}
+                                onClick={() => setCurrentPage(i + 1)}
+                                style={{ 
+                                    padding: '5px 10px', 
+                                    border: '1px solid #e2e8f0', 
+                                    cursor: 'pointer', 
+                                    color: currentPage === i + 1 ? 'white' : '#718096', 
+                                    backgroundColor: currentPage === i + 1 ? '#4299e1' : 'white' 
+                                }}
+                            >{i + 1}</button>
+                        ))}
+                        <button 
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            style={{ padding: '5px 10px', border: '1px solid #e2e8f0', backgroundColor: currentPage === totalPages ? '#f7fafc' : 'white', cursor: currentPage === totalPages ? 'default' : 'pointer' }}
+                        >»</button>
+                    </div>
+                );
+            })()}
 
             {/* ADDNEW BOOK / EDIT BOOK Modal */}
             {showNewModal && (
@@ -200,26 +246,14 @@ const BookList = ({ books, setBooks, employees = [] }) => {
                                 <input name="name" value={newBook.name} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" placeholder="Business Studies" style={{ width: '100%', padding: '10px', border: '1px solid #90cdf4', borderRadius: '4px', outline: 'none', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>Book Number:</label>
-                                    <input name="bookNo" value={newBook.bookNo} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>ISBN Number:</label>
-                                    <input name="isbn" value={newBook.isbn} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
-                                </div>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>ISBN Number:</label>
+                                <input name="isbn" value={newBook.isbn} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>Author Name:</label>
-                                    <input name="author" value={newBook.author} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>Publisher Name:</label>
-                                    <input name="publisher" value={newBook.publisher} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
-                                </div>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', fontSize: '12px', color: '#718096', marginBottom: '5px' }}>Author Name:</label>
+                                <input name="author" value={newBook.author} onChange={handleBookInputChange} disabled={isViewMode} type="text" autoComplete="off" style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '4px', backgroundColor: isViewMode ? '#f7fafc' : 'white' }} />
                             </div>
 
                             {!isViewMode && (

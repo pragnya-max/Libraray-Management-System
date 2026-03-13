@@ -34,20 +34,18 @@ const IssuedBooksReport = ({ books = [] }) => {
                     <thead>
                         <tr>
                             <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>BOOK NAME</th>
-                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>BOOK NUMBER</th>
-                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>ISBN NUMBER</th>
-                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>PUBLISHER</th>
-                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>CATEGORY</th>
+                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>BORROWED BY</th>
+                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>ISSUE DATE</th>
+                            <th style={{ textAlign: 'left', padding: '15px 10px', backgroundColor: 'white', color: '#4a5568', borderBottom: '2px solid #2d3748', fontSize: '13px' }}>RETURN DATE</th>
                         </tr>
                     </thead>
                     <tbody>
                         {issuedBooks.map((b, idx) => (
                             <tr key={b.id} style={{ backgroundColor: idx % 2 === 0 ? '#e2e8f0' : '#ffffff', borderBottom: '1px solid #e2e8f0' }}> {/* Different stripe color in screenshot */}
                                 <td style={{ padding: '12px 10px', color: '#4a5568', fontSize: '14px' }}>{b.name}</td>
-                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.bookNo}</td>
-                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.isbn}</td>
-                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.publisher}</td>
-                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.author || '-'}</td>
+                                <td style={{ padding: '12px 10px', color: '#2d3748', fontSize: '14px', fontWeight: 'bold' }}>{b.borrowedBy || '-'}</td>
+                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.dateIssued || '-'}</td>
+                                <td style={{ padding: '12px 10px', color: '#718096', fontSize: '14px' }}>{b.returnDate || '-'}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -5,7 +5,6 @@ const AddBook = () => {
     const [formData, setFormData] = useState({
         title: '',
         author: '',
-        publication: '',
         purchase_date: '',
         price: '',
         quantity: ''
@@ -19,7 +18,7 @@ const AddBook = () => {
         try {
             await addBook(formData);
             alert(`Saved successfully! ${formData.quantity} physical copies created in ILS.`);
-            setFormData({ title: '', author: '', publication: '', purchase_date: '', price: '', quantity: '' });
+            setFormData({ title: '', author: '', purchase_date: '', price: '', quantity: '' });
         } catch (error) {
             alert('Failed to save book');
         }
@@ -45,10 +44,6 @@ const AddBook = () => {
                     <input type="text" name="author" value={formData.author} onChange={handleChange} style={{ flex: 1, padding: '5px' }} />
                 </div>
 
-                <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
-                    <label style={{ width: '200px', fontSize: '16px' }}>Book Publication</label>
-                    <input type="text" name="publication" value={formData.publication} onChange={handleChange} style={{ flex: 1, padding: '5px' }} />
-                </div>
 
                 <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
                     <label style={{ width: '200px', fontSize: '16px' }}>Book Purchase Date</label>
@@ -67,7 +62,7 @@ const AddBook = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
                     <button onClick={handleSave} style={{ padding: '8px 25px', backgroundColor: '#f0caa3', border: '1px solid #795548', cursor: 'pointer', fontWeight: 'bold' }}>Save</button>
-                    <button onClick={() => setFormData({ title: '', author: '', publication: '', purchase_date: '', price: '', quantity: '' })} style={{ padding: '8px 25px', backgroundColor: '#f0caa3', border: '1px solid #795548', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
+                    <button onClick={() => setFormData({ title: '', author: '', purchase_date: '', price: '', quantity: '' })} style={{ padding: '8px 25px', backgroundColor: '#f0caa3', border: '1px solid #795548', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
                 </div>
             </div>
         </div>
