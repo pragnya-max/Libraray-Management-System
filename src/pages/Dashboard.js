@@ -93,9 +93,7 @@ const Dashboard = () => {
         const normalizedRadius = radius - strokeWidth / 2;
         const circumference = normalizedRadius * 2 * Math.PI;
         
-        const borrowedOffset = circumference - (borrowed / total) * circumference;
-        const availableOffset = circumference - (available / total) * circumference;
-        const overdueOffset = circumference - (overdue / total) * circumference;
+        
 
         return (
             <div style={{ backgroundColor: '#ffffff', padding: '25px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', height: '100%', display: 'flex', flexDirection: 'column' }}>

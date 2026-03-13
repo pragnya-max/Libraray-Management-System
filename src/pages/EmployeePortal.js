@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const EmployeePortal = ({ books, setBooks, employees, setEmployees }) => {
+const EmployeePortal = ({ books, setBooks, employees }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBook, setSelectedBook] = useState(null);
     const [showIssueModal, setShowIssueModal] = useState(false);
@@ -17,10 +17,9 @@ const EmployeePortal = ({ books, setBooks, employees, setEmployees }) => {
     const [newlyAvailable, setNewlyAvailable] = useState([]);
     const [showSecurityModal, setShowSecurityModal] = useState(false);
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
-    const [securityMsg, setSecurityMsg] = useState({ text: '', type: '' });
+    const [securityMsg] = useState({ text: '', type: '' });
     
-    // For horizontal scrolling
-    const carouselRef = useRef(null);
+    
 
     const loggedId = localStorage.getItem('employeeId') || '';
     const currentEmployee = employees.find(e => e.idCardNo === loggedId);
@@ -150,9 +149,7 @@ const EmployeePortal = ({ books, setBooks, employees, setEmployees }) => {
         }
     };
 
-    // Pagination logic for the table
-    const totalPagesTable = Math.ceil(filteredBooks.length / booksPerPage);
-    const paginateTable = (pageNumber) => setCurrentPageTable(pageNumber);
+    
 
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#141414', color: '#fff', fontFamily: "'Segoe UI', sans-serif", overflowX: 'hidden' }}>
