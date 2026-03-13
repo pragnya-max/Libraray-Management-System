@@ -99,9 +99,8 @@ const EmployeePortal = ({ books, setBooks, employees }) => {
         let returnDate = '';
 
         if (modalMode === 'borrow') {
-            const emp = employees.find(e => e.idCardNo === issueForm.employeeId || e.name === issueForm.employeeId);
-            borrowedBy = emp ? emp.name : issueForm.employeeId;
-            borrowedById = emp ? emp.idCardNo : issueForm.employeeId;
+            borrowedBy = employeeName;
+            borrowedById = loggedId;
             dateIssued = issueForm.dateIssued;
             
             // Default 14 days for return if not specified
@@ -500,8 +499,9 @@ const EmployeePortal = ({ books, setBooks, employees }) => {
                                 <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
                                     <div style={{ flex: 1 }}>
                                         <label style={{ display: 'block', fontSize: '12px', color: '#a3a3a3', marginBottom: '8px', fontWeight: 'bold' }}>EMPLOYEE ID</label>
-                                        <input type="text" value={issueForm.employeeId} onChange={e => setIssueForm({ ...issueForm, employeeId: e.target.value })} 
-                                            style={{ width: '100%', padding: '12px', backgroundColor: '#333', border: '1px solid #4d4d4d', borderRadius: '4px', color: 'white', boxSizing: 'border-box' }} />
+                                        <input type="text" value={issueForm.employeeId} 
+                                            readOnly 
+                                            style={{ width: '100%', padding: '12px', backgroundColor: '#333', border: '1px solid #4d4d4d', borderRadius: '4px', color: '#888', boxSizing: 'border-box', cursor: 'not-allowed' }} />
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <label style={{ display: 'block', fontSize: '12px', color: '#a3a3a3', marginBottom: '8px', fontWeight: 'bold' }}>RETURN DATE</label>

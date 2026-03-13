@@ -33,7 +33,39 @@ const initialBooks = [
     { id: 109, name: 'The Lean Startup', author: 'Eric Ries', subject: 'Business', status: 'Available', image: '/book_coverpage/The Lean Startup.jpg' },
     { id: 110, name: 'How to Run a Company, Dennis C. Carey & Marie-Caroline', author: '', subject: 'Management', status: 'Available', image: '/book_coverpage/How to Run a Company.jpg' },
     { id: 111, name: 'The Psychology of Money', author: 'Morgan Housel', subject: 'Finance', status: 'Available', image: '/book_coverpage/The Psychology of Money.jpg' },
-    { id: 112, name: 'The Compound Effect', author: 'Darren Hardy', subject: 'Self-Help', status: 'Available', image: '/book_covers/book_11.jpg' }
+    { id: 112, name: 'The Compound Effect', author: 'Darren Hardy', subject: 'Self-Help', status: 'Available', image: '/book_covers/book_11.jpg' },
+    { id: 113, name: 'The Science of Getting Rich', author: 'Wallace D. Wattles', subject: 'Finance', status: 'Available' },
+    { id: 114, name: 'Guide to Investing', author: 'Robert T. Kiyosaki', subject: 'Finance', status: 'Available' },
+    { id: 115, name: 'New Sales, Simplified', author: 'Mike Weinberg', subject: 'Sales', status: 'Available' },
+    { id: 116, name: 'Most Likely to Succeed', author: 'Tony Wagner', subject: 'Education', status: 'Available' },
+    { id: 117, name: 'The One World Schoolhouse', author: 'Salman Khan', subject: 'Education', status: 'Available' },
+    { id: 118, name: 'TED Talks', author: 'Chris Anderson', subject: 'Communication', status: 'Available' },
+    { id: 119, name: 'iCon', author: 'Young Simon', subject: 'Biography', status: 'Available' },
+    { id: 120, name: 'Imagining India', author: 'Nandan Nilekani', subject: 'Politics', status: 'Available' },
+    { id: 121, name: 'Elon Musk', author: 'Ashlee Vance', subject: 'Biography', status: 'Available' },
+    { id: 122, name: 'Way of the Wolf', author: 'Jordan Belfort', subject: 'Sales', status: 'Available' },
+    { id: 123, name: 'Like a Virgin', author: 'Richard Branson', subject: 'Business', status: 'Available' },
+    { id: 124, name: 'Learn, Don’t Study', author: 'Pramath Raj Sinha', subject: 'Education', status: 'Available' },
+    { id: 125, name: 'The 7 Habits of Highly Effective People', author: 'Stephen R. Covey', subject: 'Self-Help', status: 'Available' },
+    { id: 126, name: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', subject: 'Psychology', status: 'Available' },
+    { id: 127, name: 'Contagious', author: 'Jonah Berger', subject: 'Marketing', status: 'Available' },
+    { id: 128, name: 'Essentials: Managing Projects Large & Small', author: 'Harvard Business', subject: 'Management', status: 'Available' },
+    { id: 129, name: 'ସୁବାସିତ ସୁଭାଷ (Sankalan)', author: 'Urmila Prabha Beura', subject: 'Literature', status: 'Available' },
+    { id: 130, name: 'Rendezvous with a Monk', author: 'Jayant Mukherjee', subject: 'Philosophy', status: 'Available' },
+    { id: 131, name: 'Odisha Journeys – A Traveller’s Tale', author: 'Jitu Mishra', subject: 'Travel', status: 'Available' },
+    { id: 132, name: 'In Their Own Voice', author: 'Anil Pradhan', subject: 'Biography', status: 'Available' },
+    { id: 133, name: 'The 10-Day MBA', author: 'Steven Silbiger', subject: 'Business', status: 'Available' },
+    { id: 134, name: 'What (Really) Works', author: 'William', subject: 'Management', status: 'Available' },
+    { id: 135, name: 'New Product Planning', author: 'Kahn', subject: 'Management', status: 'Available' },
+    { id: 136, name: 'ICT in Education SEM-V Core Paper XII', author: 'Sagarika Rout', subject: 'Education', status: 'Available' },
+    { id: 137, name: 'Essentials: Negotiation', author: 'Harvard Business', subject: 'Management', status: 'Available' },
+    { id: 138, name: 'A New Morning with Chitta Ranjan', author: 'Ananta Kumar Giri', subject: 'Philosophy', status: 'Available' },
+    { id: 139, name: 'Thoughts on Education', author: 'Gopabandhu Das', subject: 'Education', status: 'Available' },
+    { id: 140, name: 'Indigenous Education at Cross Roads', author: 'Lauren Alcorn', subject: 'Education', status: 'Available' },
+    { id: 141, name: 'Hot, Flat, and Crowded', author: 'Thomas L. Friedman', subject: 'Environment', status: 'Available' },
+    { id: 142, name: 'Learn & Don’t Study', author: '', subject: 'Education', status: 'Available' },
+    { id: 143, name: '$100M Offers (Vol-1)', author: 'Alex Hormozi', subject: 'Business', status: 'Available' },
+    { id: 144, name: '$100M Leads (Vol-2)', author: 'Alex Hormozi', subject: 'Business', status: 'Available' }
 ];
 
 const initialEmployees = [
@@ -119,7 +151,17 @@ function App() {
       }
       return currentBook;
     });
-    if (patched) setBooks(updatedBooks);
+    // Sync new initialBooks into state if missing
+    let hasNewBooks = false;
+    const currentBooks = [...updatedBooks];
+    initialBooks.forEach(ib => {
+      if (!currentBooks.some(cb => cb.name === ib.name)) {
+        currentBooks.push(ib);
+        hasNewBooks = true;
+      }
+    });
+
+    if (patched || hasNewBooks) setBooks(currentBooks);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
